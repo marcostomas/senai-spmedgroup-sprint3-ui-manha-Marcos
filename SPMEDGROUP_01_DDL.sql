@@ -1,0 +1,91 @@
+CREATE DATABASE SPMEDGROUP_M;
+GO
+
+USE SPMEDGROUP_M;
+GO
+
+CREATE TABLE TBL_tipoUsuario (
+	IdTipoUsuario		INT PRIMARY KEY IDENTITY,
+	TituloTipoUsuario	VARCHAR (20) NOT NULL
+);
+GO
+
+CREATE TABLE TBL_localizacao (
+	IdLocal		INT PRIMARY KEY IDENTITY,
+	NomePais	VARCHAR (200) NOT NULL,
+	NomeEstado	VARCHAR(200) NOT NULL,
+	NomeCidade	VARCHAR(200) NOT NULL
+);
+GO
+
+CREATE TABLE TBL_especialidade (
+	IdEspecialidade		INT PRIMARY KEY IDENTITY,
+	TituloEspecialidade	VARCHAR(200) NOT NULL
+);
+GO
+
+CREATE TABLE TBL_spMedGroup (
+	IdGrupo			INT PRIMARY KEY IDENTITY,
+	RazaoSocial		VARCHAR(255) NOT NULL,
+	CNPJ			VARCHAR(200) NOT NULL,
+	EnderecoSede	VARCHAR(255) NOT NULL
+);
+GO
+
+CREATE TABLE TBL_usuario (
+	IdUsuario		INT PRIMARY KEY IDENTITY,
+	IdTipoUsuario	INT FOREIGN KEY REFERENCES TBL_tipoUsuario (IdTipoUsuario) NOT NULL,
+	IdGrupo			INT FOREIGN KEY REFERENCES TBL_spMedGroup (IdGrupo) NOT NULL,
+	NumSocial		VARCHAR(50) NOT NULL,
+	DataNascimento	DATE NOT NULL,
+	Nome			VARCHAR(255) NOT NULL,
+	Nacionalidade	VARCHAR(100) NOT NULL
+);
+GO
+
+
+CREATE TABLE TBL_paciente (
+	IdPaciente	INT PRIMARY KEY IDENTITY,
+	IdUsuario	INT FOREIGN KEY REFERENCES TBL_usuario (IdUsuario) NOT NULL,
+);
+GO
+
+CREATE TABLE TBL_administrador (
+	IdAdmin		INT PRIMARY KEY IDENTITY,
+	IdUsuario	INT FOREIGN KEY REFERENCES TBL_usuario(IdUsuario) NOT NULL,
+);
+GO
+
+CREATE TABLE TBL_clinica (
+	IdClinica		INT PRIMARY KEY IDENTITY,
+	IdLocal			INT FOREIGN KEY REFERENCES TBL_localizacao (IdLocal) NOT NULL,
+	IdGrupo			INT FOREIGN KEY REFERENCES	TBL_spMedGroup (IdGrupo) NOT NULL,
+	RazaoSocial		VARCHAR(255) NOT NULL,
+	CNPJ			VARCHAR(200) NOT NULL,
+	Endereco		VARCHAR(255) NOT NULL
+);
+GO
+
+CREATE TABLE TBL_medico (
+	IdMedico			INT PRIMARY KEY IDENTITY,
+	IdClinica			INT FOREIGN KEY REFERENCES TBL_clinica(IdClinica),
+	IdEspecialidade		INT FOREIGN KEY REFERENCES TBL_especialidade(IdEspecialidade) NOT NULL,
+	IdUsuario			INT FOREIGN KEY REFERENCES TBL_usuario(IdUsuario) NOT NULL,
+	CRM					VARCHAR(100) NOT NULL
+);
+GO
+
+CREATE TABLE TBL_consulta (
+	IdConsulta			INT PRIMARY KEY IDENTITY,
+	IdPaciente			INT FOREIGN KEY REFERENCES TBL_paciente(IdPaciente) NOT NULL,
+	IdMedico			INT FOREIGN KEY REFERENCES TBL_medico(IdMedico) NOT NULL,
+	IdEspecialidade		INT FOREIGN KEY REFERENCES TBL_especialidade(IdEspecialidade),
+	IdClinica			INT FOREIGN KEY REFERENCES TBL_clinica(IdClinica) NOT NULL,
+	StatusConsulta		BIT DEFAULT(1) NOT NULL,
+	Receita				VARCHAR(255),
+	DataConsulta		DATE NOT NULL
+);
+GO
+
+USE MASTER;
+DROP DATABASE SPMEDGROUP_M;
